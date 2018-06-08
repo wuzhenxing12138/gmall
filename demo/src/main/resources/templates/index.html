@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+</head>
+<body>
+    hello thymeleaf !
+    <hr />
+    <!-- 获取值 -->
+    <div th:text="${hello}">打底默认值</div>
+    <p th:text="${hello}">打底默认值</p>
+
+    <hr />
+    <!--  循环 -->
+    <div th:each="object:${list}">
+        <div th:text="${object}"></div>
+    </div>
+    <!--  判断 -->
+    <p th:if="${1==1}">打底默认值</p>
+
+    <!--  session -->
+    <p th:text="${session.s}">打底默认值</p>
+
+    <!--  include -->
+    <p th:include="footer::ff">打底默认值</p>
+
+    <!--  js -->
+    <a th:href="'javascript:a(\''+${hello}+'\')'" >js调用</a>
+
+    <script language="JavaScript">
+
+        function  a(param) {
+            alert("js = "+param);
+        }
+    </script>
+</body>
+</html>

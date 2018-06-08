@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.atguigu.gmall.manage.mapper.BaseAttrInfoMapper">
+        <select id="selectAttrInfoList" parameterType="int" resultMap="selectAttrInfoListMap">
+            select info.id as attr_id ,bav.id as value_id ,info.*,bav.* from
+            base_attr_info info,
+            base_attr_value bav
+            where info.id = bav.attr_id and info.catalog3_id = #{catalog3Id}
+        </select>
+    
+    <resultMap id="selectAttrInfoListMap" type="com.atguigu.gmall.bean.BaseAttrInfo" autoMapping="true">
+        <result property="id" column="attr_id"></result>
+        <collection property="attrValueList" ofType="com.atguigu.gmall.bean.BaseAttrValue" autoMapping="true">
+            <result property="id" column="value_id"></result>
+        </collection>
+    </resultMap>
+
+
+    <select id="selectAttrListByValueIds" resultMap="selectAttrListByValueIdsMap" >
+
+        SELECT
+            ba.id as attr_id,bv.id as value_id ,ba.*,bv.*
+        FROM
+            base_attr_info ba,
+            base_attr_value bv
+        WHERE
+            ba.id = bv.attr_id
+        and
+            bv.id IN (${join})
+
+    </select>
+    
+    <resultMap id="selectAttrListByValueIdsMap" type="com.atguigu.gmall.bean.BaseAttrInfo"  autoMapping="true">
+            <result property="id" column="attr_id"/>
+            <collection property="attrValueList" ofType="com.atguigu.gmall.bean.BaseAttrValue" autoMapping="true">
+                <result property="id" column="value_id"/>
+            </collection>
+    </resultMap>
+</mapper>

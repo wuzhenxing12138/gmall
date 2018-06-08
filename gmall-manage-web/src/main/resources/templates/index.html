@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>后台管理GMALL</title>
+
+    <link rel="stylesheet" type="text/css" href="easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="easyui/themes/icon.css">
+    <script type="text/javascript" src="easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+
+    <script type="text/javascript" src="/easyui/datagrid-detailview.js"></script>
+    <link rel="stylesheet" type="text/css" href="/webuploader/webuploader.css">
+    <script type="text/javascript" src="/webuploader/webuploader.js"></script>
+
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'north',border:false" style="height:60px;background:#B3DFDA;padding:10px">north region</div>
+    <div data-options="region:'west',split:true,title:'West'" style="width:200px;padding:10px;">
+
+        <div class="easyui-accordion" style="overflow:auto;">
+            <div title="基本信息管理">
+                <ul><li><h4><a href="javascript:addTabAttr();">基本信息管理</a></h4></li></ul>
+            </div>
+            <div title="商品信息管理">
+                <ul><li><h4><a href="javascript:addTabSpu();">商品信息管理</a></h4></li></ul>
+            </div>
+            <div title="广告管理">
+                <h1>广告管理</h1>
+            </div>
+        </div>
+
+    </div>
+    <div data-options="region:'east',split:true,collapsed:true,title:'East'" style="width:100px;padding:10px;">east region</div>
+    <div data-options="region:'south',border:false" style="height:50px;background:#A9FACD;padding:10px;">south region</div>
+    <div data-options="region:'center',title:'Center'">
+        <div id="tt" class="easyui-tabs"></div>
+    </div>
+
+    <script language="JavaScript">
+
+
+        function addTabSpu(){
+            //异步调用后台
+            //加载返回html到tabs
+            // add a new tab panel
+            var b = $('#tt').tabs("exists","商品信息管理");
+            if(!b){
+                $('#tt').tabs('add',{
+                    title:'商品信息管理',
+                    href:"spuListPage",
+                    closable:true
+                });
+            }
+        }
+
+        function addTabAttr(){
+            //异步调用后台
+            //加载返回html到tabs
+            // add a new tab panel
+            var b = $('#tt').tabs("exists","基本信息管理");
+            if(!b){
+                $('#tt').tabs('add',{
+                    title:'基本信息管理',
+                    href:'attrListPage',
+                    closable:true
+                });
+            }else{
+                $('#tt').tabs("select","基本信息管理");
+            }
+        }
+
+    </script>
+</body>
+</html>

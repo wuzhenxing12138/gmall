@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<!-----------------弹出框----------------------------->
+<div id="sku_dlg" class="easyui-dialog" title="编辑sku" style="width:700px;height:520px;"
+     closed="true"  data-options="iconCls:'icon-save',resizable:true,modal:false" buttons="#skuBtns" >
+    <form id="skuForm">
+        <br/>
+        <label>sku名称:</label>
+        <input  id="skuName" name="skuName" class="easyui-textbox" data-options="" style="width:300px;"/>
+        <br/><br/>
+        <label>商品价格:</label>
+        <input  id="price" name="price" class="easyui-numberbox" data-options="min:0,precision:2" style="width:300px;"/>
+        <br/><br/>
+        <label>商品重量（千克):</label>
+        <input  id="weight" name="weight" class="easyui-numberbox" data-options="min:0,precision:2" style="width:300px;"/>
+        <br/><br/>
+        <label>商品规格描述:</label>
+        <input  id="skuDesc" name="skuDesc" class="easyui-textbox" data-options="multiline:true" style="width:500px;height:100px"/>
+        <input id="spuIdForSku" name="spuId" type="hidden"/>
+
+        <input id="skuId" name="id" type="hidden"/>
+
+        <input id="catalog3IdForSku" name="catalog3Id" type="hidden"/>
+
+        <input id="skuDefaultImg" name="skuDefaultImg" type="hidden"/>
+        <br/><br/>
+
+        <input id="skuInfo" name="skuInfo" type="hidden"/>
+
+
+        <div id="attrInfoGroup"  title="平台属性列表" class="easyui-panel" style="padding:5px;" >
+        </div>
+
+        <div id="spuSaleAttrGroup" title="销售属性列表" class="easyui-panel" style="padding:5px;" ></div>
+
+
+
+        <!----------------商品图片列表 ----------------------->
+
+        <table id="skuImgDg" class="easyui-datagrid" title="商品图片列表"
+               data-options="singleSelect:false,selectOnCheck:false,method:'get'" ></table>
+
+        <br/><br/>
+
+    </form>
+</div>
+<!----------------弹出框的按钮组----------------------->
+<div id="skuBtns">
+    <a href="#" class="easyui-linkbutton" onclick="saveSku()">保 存</a>
+    <a href="#" class="easyui-linkbutton" onclick="closeSku()">关 闭</a>
+</div>
+
+<script language="JavaScript">
+ 
+    function initSkuInfoDlg(skuInfo){
+        $("#sku_dlg").dialog("open");
+        $("#skuName").textbox("setValue",skuInfo.skuName);
+        $("#price").textbox("setValue",skuInfo.price);
+        $("#weight").textbox("setValue",skuInfo.weight);
+        $("#skuDesc").textbox("setValue",skuInfo.skuDesc);
+        $("#skuId").val(skuInfo.id);
+        $("#spuIdForSku").val(skuInfo.spuId);
+        $("#catalog3IdForSku").val(skuInfo.catalog3Id);
+        $("#skuDefaultImg").val(skuInfo.skuDefaultImg);
+        // 加载spu图片
+        initSpuImgListDatagrid(skuInfo.spuId);
+
+        // 加载平台属性
+        initAttrInfoGroup(skuInfo.catalog3Id);
+
+        // 加载销售属性
+        initSpuSaleAttrGroup(skuInfo.spuId);
+    }
+
+    function saveSku() {
+        // 拼接json
+        var skuInfo = {};
+        skuInfo["id"] = $("#skuId").val();
+
+        skuInfo["spuId"] = $("#spuIdForSku").val();
+
+        skuInfo["catalog3Id"] = $("#catalog3IdForSku").val();
+        skuInfo["skuDefaultImg"] = $("input[name='isD']:checked").val();
+
+        if(skuInfo.skuDefaultImg==""||skuDefaultImg==null){
+            skuInfo["skuDefaultImg"] = $("#skuDefaultImg").val();
+        }
+        skuInfo["price"] = $("#price").textbox("getValue");
+
+        skuInfo["skuName"] = $("#skuName").textbox("getValue");
+
+        skuInfo["weight"] = $("#weight").textbox("getValue");
+
+        skuInfo["skuDesc"] = $("#skuDesc").textbox("getValue");
+
+        // 平台属性封装
+        var attrSelectList = $("#attrInfoGroup").children("span");
+        for(i=0;i<attrSelectList.length;i++){
+            skuInfo["skuAttrValueList["+i+"].skuId"] = $("#skuId").val();
+            var attrId= attrSelectList.eq(i).attr("attrId");
+            var valueId = attrSelectList.eq(i).children("select").val();
+            skuInfo["skuAttrValueList["+i+"].attrId"] = attrId;
+            skuInfo["skuAttrValueList["+i+"].valueId"] = valueId;
+        }
+
+        // 销售属性封装
+        var saleAttrSelectList = $("#spuSaleAttrGroup").children("span");
+        for(i=0;i<saleAttrSelectList.length;i++){
+            var saleAttrId = saleAttrSelectList.eq(i).attr("saleAttrId");
+            var saleAttrName = saleAttrSelectList.eq(i).attr("saleAttrName");
+
+            var saleAttrValueId = saleAttrSelectList.eq(i).children("select").val();
+            var saleAttrValueName = saleAttrSelectList.eq(i).children("select").find("option:selected").text();
+            skuInfo["skuSaleAttrValueList["+i+"].saleAttrId"] = saleAttrId;
+            skuInfo["skuSaleAttrValueList["+i+"].saleAttrName"] = saleAttrName;
+            skuInfo["skuSaleAttrValueList["+i+"].saleAttrValueId"] = saleAttrValueId;
+            skuInfo["skuSaleAttrValueList["+i+"].saleAttrValueName"] = saleAttrValueName;
+        }
+
+        // 图片封装
+        var rows = $("#skuImgDg").datagrid("getChecked");
+
+        $(rows).each(function(i,row){
+            var imgId = row.id;
+            var imgUrl = row.imgUrl;
+            var imgName = row.imgName;
+            skuInfo["skuImageList["+i+"].skuId"] = skuInfo.id;
+            skuInfo["skuImageList["+i+"].imgName"] = imgName;
+            skuInfo["skuImageList["+i+"].imgUrl"] = imgUrl;
+            skuInfo["skuImageList["+i+"].spuImgId"] = imgId;
+        });
+
+        // 异步提交
+        $.get("saveSku",skuInfo,function(data){
+            $("#sku_dlg").dialog("close");
+            $("#skulist_dg").datagrid("reload");
+
+        });
+    }
+    
+    // 加载销售属性
+    function initSpuSaleAttrGroup(spuId) {
+        $.get("saleAttrValueList",{spuId:spuId},function(data){
+            // 将下拉列表放入平台属性的panel
+            $("#spuSaleAttrGroup").empty();
+            $(data).each(function(i,spuSaleAttr){
+                var spuSaleAttrValueList = spuSaleAttr.spuSaleAttrValueList;
+                var attrHead = "<span saleAttrId='"+spuSaleAttr.saleAttrId+"' saleAttrName='"+spuSaleAttr.saleAttrName+"'>"+spuSaleAttr.saleAttrName;
+                var valueHead = "<select>";
+
+                var valueBody = "";
+                for(i=0;i<spuSaleAttrValueList.length;i++){
+                    valueBody+= "<option value='"+spuSaleAttrValueList[i].id+"'>"+spuSaleAttrValueList[i].saleAttrValueName+"</option>";
+                }
+                var valueEnd = "</select>";
+                var attrEnd = "</span>";
+                $("#spuSaleAttrGroup").append($(attrHead+valueHead+valueBody+valueEnd+attrEnd));
+            });
+        });
+    }
+
+    // 加载平台属性
+    function initAttrInfoGroup(catalog3Id) {
+        $.get("attrInfoList",{catalog3Id:catalog3Id},function(data){
+            // 将下拉列表放入平台属性的panel
+            $("#attrInfoGroup").empty();
+            $(data).each(function(i,attrInfo){
+                    var valueList = attrInfo.attrValueList;
+                    var attrHead = "<span attrId='"+attrInfo.id+"'>"+attrInfo.attrName;
+                    var valueHead = "<select>";
+
+                    var valueBody = "";
+                    for(i=0;i<valueList.length;i++){
+                        valueBody+= "<option value='"+valueList[i].id+"'>"+valueList[i].valueName+"</option>";
+                    }
+                    var valueEnd = "</select>";
+                    var attrEnd = "</span>";
+                   $("#attrInfoGroup").append($(attrHead+valueHead+valueBody+valueEnd+attrEnd));
+            });
+        });
+    }
+
+    // 加载spu的图片列表
+    function initSpuImgListDatagrid(spuId) {
+        $("#skuImgDg").datagrid({
+            url:"getSpuImageList?spuId="+spuId,
+            columns:[[
+                {field: 'id', title: '编号', width: '5%',checkbox:true},
+                {field: 'spuId', title: 'spuid', width: '5%'},
+                {field: 'imgName', title: '图片名称', width: '15%'},
+                {field: 'imgUrl', title: '图片', width: '25%',formatter:function (value,row,index) {
+                    return "<img src = "+value+" width='100px' height='100px' />";
+                }},
+                {field: 'isD', title: '是否默认', width: '15%',formatter:function (value,row,index) {
+                        return "<input  name = 'isD' value='"+row.imgUrl+"' type='radio' />";
+                }}
+            ]],
+        });
+    }
+
+</script>
+</body>
+</html>

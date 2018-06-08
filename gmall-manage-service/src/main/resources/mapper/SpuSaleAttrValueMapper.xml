@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.atguigu.gmall.manage.mapper.SpuSaleAttrValueMapper">
+    <select id="selectSpuSaleAttrListCheckBySku" parameterType="Map" resultMap="selectSpuSaleAttrListCheckBySkuMap">
+        SELECT
+            sa.id as sa_id,sa.*, sv.id as sv_id,sv.*, skv.sku_id,
+        IF (skv.sku_id IS NOT NULL, 1, 0) AS isChecked
+        FROM
+            spu_sale_attr sa
+        INNER JOIN spu_sale_attr_value sv ON sa.sale_attr_id = sv.sale_attr_id
+        AND sa.spu_id = sv.spu_id
+        AND sa.spu_id = #{spuId}
+        LEFT JOIN sku_sale_attr_value skv ON skv.sale_attr_id = sa.sale_attr_id
+        AND skv.sale_attr_value_id = sv.id
+        AND skv.sku_id = #{skuId} order by sa.sale_attr_id
+    </select>
+    
+    <resultMap id="selectSpuSaleAttrListCheckBySkuMap" type="com.atguigu.gmall.bean.SpuSaleAttr" autoMapping="true">
+        <result column="sa_id" property="id"></result>
+        <collection property="spuSaleAttrValueList"  ofType="com.atguigu.gmall.bean.SpuSaleAttrValue" autoMapping="true">
+            <result column="sv_id" property="id"></result>
+        </collection>
+    </resultMap>
+</mapper>
